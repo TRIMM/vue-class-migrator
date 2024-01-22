@@ -11,7 +11,8 @@ import {
 import { addPropertyObject, getArrayProperty, getObjectProperty } from './utils';
 import { ComputedProps, MigratePartProps } from './types/migrator';
 import { supportedDecorators } from './config';
-import getDefineComponentInit from './migrate-component-decorator';
+import getDefineComponentInit, { hasComponentDecorator } from './migrate-component-decorator';
+import getDefineOptionsInit, { hasOptionsDecorator } from './migrate-options-decorator';
 
 export default class MigrationManager {
   private _clazz: ClassDeclaration;
@@ -215,15 +216,15 @@ export const createMigrationManager = (
   // Do not modify this class.
   const sourceFileClass = sourceFile
     .getClasses()
-    .filter((clazz) => clazz.getDecorator('Component'))
+    .filter((clazz) => clazz.getDecorator('Component') || clazz.getDecorator('Options'))
     .pop();
   const outClazz = outFile
     .getClasses()
-    .filter((clazz) => clazz.getDecorator('Component'))
+    .filter((clazz) => clazz.getDecorator('Component') || clazz.getDecorator('Options'))
     .pop();
 
   if (!sourceFileClass || !outClazz) {
-    throw new Error('Class implementing the @Component decorator not found.');
+    throw new Error('Class implementing the @Component or @Options decorator not found.');
   }
 
   // Validation
@@ -236,7 +237,12 @@ export const createMigrationManager = (
       }
     });
 
-  const defineComponentInitObject = getDefineComponentInit(sourceFileClass);
+  let defineComponentInitObject;
+  if (hasComponentDecorator(sourceFileClass)) {
+    defineComponentInitObject = getDefineComponentInit(sourceFileClass);
+  } else if (hasOptionsDecorator(sourceFileClass)) {
+    defineComponentInitObject = getDefineOptionsInit(sourceFileClass);
+  }
   let clazzReplacement: string;
   if (!outClazz.getDefaultKeyword()) {
     // Non default exported class

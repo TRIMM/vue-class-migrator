@@ -54,7 +54,7 @@ const migrateVueFile = async (project: Project, vueSourceFile: SourceFile) => {
 
 export const migrateFile = async (project: Project, sourceFile: SourceFile) => {
   logger.info(`Migrating ${sourceFile.getBaseName()}`);
-  if (!sourceFile.getText().includes('@Component')) {
+  if (!sourceFile.getText().includes('@Component') && !sourceFile.getText().includes('@Options')) {
     throw new Error('File already migrated');
   }
 
@@ -72,7 +72,8 @@ export const migrateFile = async (project: Project, sourceFile: SourceFile) => {
 };
 
 export const migrateDirectory = async (directoryPath: string, toSFC: boolean) => {
-  const directoryToMigrate = path.join(process.cwd(), directoryPath);
+  const directoryToMigrate = path.isAbsolute(directoryPath)
+    ? directoryPath : path.join(process.cwd(), directoryPath);
   const project = new Project({});
 
   project.addSourceFilesAtPaths(`${directoryToMigrate}/**/*.(ts|vue|scss)`)
@@ -85,7 +86,7 @@ export const migrateDirectory = async (directoryPath: string, toSFC: boolean) =>
     .filter(
       (file) => ['.vue', '.ts'].includes(file.getExtension())
         && !file.getFilePath().includes('node_modules')
-        && file.getText().includes('@Component'),
+        && (file.getText().includes('@Component') || file.getText().includes('@Options')),
     );
 
   logger.info(
