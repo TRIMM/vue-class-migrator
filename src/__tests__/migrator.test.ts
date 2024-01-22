@@ -27,7 +27,7 @@ describe('migrateFile()', () => {
 
     await expect(migrateFile(project, sourceFile))
       .rejects
-      .toThrow('Class implementing the @Component decorator not found.');
+      .toThrow('Class implementing the @Component or @Options decorator not found.');
   });
 
   describe('Imports & Exports', () => {

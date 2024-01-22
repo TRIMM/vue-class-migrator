@@ -25,7 +25,7 @@ describe('Data Property Migration', () => {
                     }
                 }`,
         // Throws
-        'Having a class with the data() method and the @Component({data(): ...} at the same time is not supported.',
+        'Having a class with the data() method and the @Component({data(): ...} or @Options({data(): ...} at the same time is not supported.',
       );
     });
 

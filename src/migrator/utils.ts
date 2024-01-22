@@ -64,3 +64,7 @@ export const stringNodeToSTring = (node: Node): string => {
   }
   throw new Error(`Node is not a string: ${node.getKindName()}`);
 };
+
+// Code copied from Vue/src/shared/util.js
+const hyphenateRE = /\B([A-Z])/g;
+export const hyphenate = (str: string) => str.replace(hyphenateRE, '-$1').toLowerCase();
